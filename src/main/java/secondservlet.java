@@ -52,7 +52,7 @@ public class secondservlet extends HttpServlet {
         out.println("</tr>");
         out.println("</table>");
         
-         out.println("<input type=submit value=depositar>");
+         out.println("<input type=submit value=Depositar>");
          out.println("</br>");
          out.println("</Form>");
          out.println("</body>");
