@@ -27,45 +27,51 @@ public class registerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {
-            // Obtener los parámetros necesarios para la inserción
-            String accno = request.getParameter("accno");
-            String pinno = request.getParameter("pinno");
-
-            // Establecer la conexión con la base de datos
-            con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
-
-            // Preparar la consulta SQL para insertar un nuevo registro
-            pst = con.prepareStatement("INSERT INTO login (accno, pinno) VALUES (?, ?)");
-            pst.setString(1, accno);
-            pst.setString(2, pinno);
-
-            // Ejecutar la inserción
-            int rowsAffected = pst.executeUpdate();
-            if (rowsAffected > 0) {
-                // Si la inserción fue exitosa
-                out = response.getWriter();
-                response.setContentType("text/html");
-                out.println("<html>");
-                out.println("<body bgcolor=pink>");
-                out.println("Registro realizado exitosamente.");
-                out.println("</body>");
-                out.println("</html>");
-            } else {
-                // Si no se afectaron filas
-                out = response.getWriter();
-                response.setContentType("text/html");
-                out.println("<html>");
-                out.println("<body bgcolor=pink>");
-                out.println("Error al registrarse.");
-                out.println("</body>");
-                out.println("</html>");
-            }
-
-            // Cerrar la conexión
-            con.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+                try {
+                    // Obtener los parámetros necesarios para la inserción
+                    String accno = request.getParameter("accno");
+                    String pinno = request.getParameter("pinno");
+            
+                    // Establecer la conexión con la base de datos
+                    con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
+            
+                    // Preparar la consulta SQL para insertar un nuevo registro en la tabla login
+                    pst = con.prepareStatement("INSERT INTO login (accno, pinno) VALUES (?, ?)");
+                    pst.setString(1, accno);
+                    pst.setString(2, pinno);
+            
+                    // Ejecutar la inserción
+                    int rowsAffected = pst.executeUpdate();
+                    if (rowsAffected > 0) {
+                        // Si la inserción fue exitosa, insertar un saldo inicial de 0 en account_balance
+                        pst = con.prepareStatement("INSERT INTO account_balance (accnum, balance) VALUES (?, ?)");
+                        pst.setString(1, accno);
+                        pst.setDouble(2, 0.00); // Saldo inicial de 0
+                        pst.executeUpdate();
+            
+                        // Mensaje de éxito
+                        out = response.getWriter();
+                        response.setContentType("text/html");
+                        out.println("<html>");
+                        out.println("<body bgcolor='#ECF0F1'>");
+                        out.println("Registro realizado exitosamente.");
+                        out.println("</body>");
+                        out.println("</html>");
+                    } else {
+                        // Si no se afectaron filas
+                        out = response.getWriter();
+                        response.setContentType("text/html");
+                        out.println("<html>");
+                        out.println("<body bgcolor='#ECF0F1'>");
+                        out.println("Error al registrarse.");
+                        out.println("</body>");
+                        out.println("</html>");
+                    }
+            
+                    // Cerrar la conexión
+                    con.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
     }
 }

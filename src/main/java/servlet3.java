@@ -5,6 +5,7 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,52 +30,90 @@ public class servlet3 extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        try 
-        {
-            Connection con;
-            PreparedStatement pst;
-            ResultSet rs;
+                try {
+                    Connection con;
+                    PreparedStatement pst;
             
-            PrintWriter  out = response.getWriter();
-            response.setContentType("text/html");
+                    PrintWriter out = response.getWriter();
+                    response.setContentType("text/html");
             
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
-            ServletContext context = getServletContext();
-            Object obj = context.getAttribute("accno");
-            String accno = obj.toString();
+                    Class.forName("com.mysql.jdbc.Driver");
+                    con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
+                    ServletContext context = getServletContext();
+                    Object obj = context.getAttribute("accno");
+                    String accno = obj.toString();
             
-            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyy/MM/dd");
-            LocalDateTime now = LocalDateTime.now();
-            String date = df.format(now);
-            String amount = request.getParameter("amount");
-
+                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    LocalDateTime now = LocalDateTime.now();
+                    String date = dateFormatter.format(now);
+                    String hour = timeFormatter.format(now); // Cambiamos el nombre a 'hour'
+                    String amountStr = request.getParameter("amount");
+                    double amount = Double.parseDouble(request.getParameter("amount"));
+                    String transactionType = request.getParameter("transactionType"); //deposit or charge
             
-            pst = con.prepareStatement("insert into account_holder(accnum,date,mdeposit)values(?,?,?)");
-            pst.setString(1, accno);
-            pst.setString(2, date);
             
-            pst.setString(3, amount);
-            int rows = pst.executeUpdate();
+                    // Manejar depósito
+                    if (transactionType.equals("deposit")) {
+                        // Verificar si ya existe un registro para el accno en account_balance
+                        pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accnum = ?");
+                        pst.setString(1, accno);
+                        ResultSet rs = pst.executeQuery();
             
-            if(rows==1)
-            {
-                out.println("La transacción fue realizada con éxito");
-            }
-            else
-            {
-                 out.println("La transacción fallo");
-            }
-
-        } 
-        catch (ClassNotFoundException ex)
-        {
-           ex.printStackTrace();
-        } 
-        catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+                        if (rs.next()) {
+                            // Si existe, actualizar el saldo
+                            double existingBalance = rs.getDouble("balance");
+                            double newBalance = existingBalance + amount;
+            
+                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accnum = ?");
+                            pst.setDouble(1, newBalance);
+                            pst.setString(2, accno);
+                            pst.executeUpdate();
+                        } else {
+                            // Si no existe, insertar un nuevo registro con el saldo inicial
+                            pst = con.prepareStatement("INSERT INTO account_balance (accnum, balance) VALUES (?, ?)");
+                            pst.setString(1, accno);
+                            pst.setDouble(2, amount);
+                            pst.executeUpdate();
+                        }
+                    } 
+                    // Manejar cargo
+                    else if (transactionType.equals("charge")) {
+                        // Verificar si ya existe un registro para el accno en account_balance
+                        pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accnum = ?");
+                        pst.setString(1, accno);
+                        ResultSet rs = pst.executeQuery();
+            
+                        if (rs.next()) {
+                            // Si existe, actualizar el saldo
+                            double existingBalance = rs.getDouble("balance");
+                            double newBalance = existingBalance - amount;
+            
+                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accnum = ?");
+                            pst.setDouble(1, newBalance);
+                            pst.setString(2, accno);
+                            pst.executeUpdate();
+                        } else {
+                            // Si no existe, no se puede hacer un cargo
+                            out.println("No se puede realizar el cargo, la cuenta no existe.");
+                            return;
+                        }
+                    }
+            
+                    // Registrar la transacción en la tabla de historial
+                    pst = con.prepareStatement("INSERT INTO transactions (accnum, date, hour, amount, type) VALUES (?, ?, ?, ?, ?)");
+                    pst.setString(1, accno);
+                    pst.setString(2, date);
+                    pst.setString(3, hour); // Insertar la hora en la columna 'hour'
+                    pst.setDouble(4, amount);
+                    pst.setString(5, transactionType);
+                    pst.executeUpdate();
+            
+        String transactionMessage = "La transaccion fue realizada con exito";
+        response.sendRedirect("secondservlet?transactionMessage=" + URLEncoder.encode(transactionMessage, "UTF-8"));
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
        
     }
-
 }

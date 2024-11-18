@@ -65,7 +65,7 @@ public class servlet1 extends HttpServlet {
                 out = response.getWriter();
                 response.setContentType("text/html");
                 out.println("<html>");
-                out.println("<body bgcolor=pink>");
+                out.println("<body bgcolor='#ECF0F1'>");
                 out.println("Número de cuenta y/o PIN no válido(s)");
                 out.println("</body");
                 out.println("</html");
