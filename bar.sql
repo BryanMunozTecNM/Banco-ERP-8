@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-11-2024 a las 17:58:41
+-- Tiempo de generación: 18-11-2024 a las 05:56:47
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -26,27 +26,20 @@ USE `bar`;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `account_holder`
+-- Estructura de tabla para la tabla `account_balance`
 --
 
-CREATE TABLE `account_holder` (
+CREATE TABLE `account_balance` (
   `accnum` varchar(255) NOT NULL,
-  `date` date NOT NULL,
-  `mdeposit` decimal(10,2) NOT NULL
+  `balance` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `account_holder`
+-- Volcado de datos para la tabla `account_balance`
 --
 
-INSERT INTO `account_holder` (`accnum`, `date`, `mdeposit`) VALUES
-('A0001', '2024-10-30', 10000.00),
-('A0002', '2024-10-30', 10000.00),
-('A0001', '2024-10-30', 33333.00),
-('A0001', '2024-10-30', 99999.00),
-('A0002', '2024-10-30', 66666.00),
-('A0002', '2024-10-30', 55555.00),
-('A0002', '2024-10-30', 77777.00);
+INSERT INTO `account_balance` (`accnum`, `balance`) VALUES
+('Prb1', 329.00);
 
 -- --------------------------------------------------------
 
@@ -65,17 +58,52 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `accno`, `pinno`) VALUES
-(1, 'A0001', '12345'),
-(2, 'A0002', '12345');
+(19, 'Prb1', '1');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `transactions`
+--
+
+CREATE TABLE `transactions` (
+  `id` int(11) NOT NULL,
+  `accnum` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `type` enum('deposit','charge') NOT NULL,
+  `hour` time NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `accnum`, `date`, `amount`, `type`, `hour`) VALUES
+(17, 'Prb1', '2024-11-17', 111.00, 'deposit', '22:51:06'),
+(18, 'Prb1', '2024-11-17', 222.00, 'deposit', '22:51:12'),
+(19, 'Prb1', '2024-11-17', 4.00, 'charge', '22:51:26');
 
 --
 -- Índices para tablas volcadas
 --
 
 --
+-- Indices de la tabla `account_balance`
+--
+ALTER TABLE `account_balance`
+  ADD PRIMARY KEY (`accnum`);
+
+--
 -- Indices de la tabla `login`
 --
 ALTER TABLE `login`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `transactions`
+--
+ALTER TABLE `transactions`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -86,7 +114,13 @@ ALTER TABLE `login`
 -- AUTO_INCREMENT de la tabla `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT de la tabla `transactions`
+--
+ALTER TABLE `transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

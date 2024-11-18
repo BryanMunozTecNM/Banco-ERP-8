@@ -40,43 +40,39 @@ public class servlet1 extends HttpServlet {
             ServletContext context = getServletContext();
             context.setAttribute("accno", "");
             String accno = request.getParameter("accno");
-            String pinno = request.getParameter("pinno");         
-            pst = con.prepareStatement("select * from login where accno = ? and pinno = ?");
-            pst.setString(1, accno);
-            pst.setString(2, pinno);
-            rs = pst.executeQuery();
-            boolean row = false;
-            row = rs.next();
-            
-        if(row == true)
-        {
-                result = rs.getString(2);
-                context.setAttribute("accno", result);
-                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/secondservlet");
-                if(dispatcher == null)
-                {   
-                }
-                dispatcher.forward(request, response);
-                con.close();       
+            String pinno = request.getParameter("pinno");  
+
+        // Consulta para verificar el accno y pinno
+        pst = con.prepareStatement("SELECT * FROM login WHERE accno = ? AND pinno = ?");
+        pst.setString(1, accno);
+        pst.setString(2, pinno); // La comparación será sensible a mayúsculas y minúsculas
+        rs = pst.executeQuery();
+        boolean row = rs.next();
+        
+        if (row) {
+            result = rs.getString(2);
+            context.setAttribute("accno", result);
+            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/secondservlet");
+            if (dispatcher == null) {   
+            }
+            dispatcher.forward(request, response);
+            con.close();       
+        } else {
+            out = response.getWriter();
+            response.setContentType("text/html");
+            out.println("<html>");
+            out.println("<body bgcolor='#ECF0F1'>");
+            out.println("Número de cuenta y/o PIN no válido(s)");
+            out.println("</body>");
+            out.println("</html>");
+            out.close();
         }
         
-        else
-        {
-                out = response.getWriter();
-                response.setContentType("text/html");
-                out.println("<html>");
-                out.println("<body bgcolor='#ECF0F1'>");
-                out.println("Número de cuenta y/o PIN no válido(s)");
-                out.println("</body");
-                out.println("</html");
-                out.close();
-         }
-            
-        } catch (ClassNotFoundException ex) {
-           ex.printStackTrace();
-        } catch (SQLException ex) {
-             ex.printStackTrace();
-        }
+    } catch (ClassNotFoundException ex) {
+       ex.printStackTrace();
+    } catch (SQLException ex) {
+         ex.printStackTrace();
+    }
 
     }
 

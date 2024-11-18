@@ -8,6 +8,7 @@
  import java.sql.Connection;
  import java.sql.DriverManager;
  import java.sql.PreparedStatement;
+ import java.sql.ResultSet;
  import java.sql.SQLException;
  import jakarta.servlet.ServletContext;
  import jakarta.servlet.ServletException;
@@ -35,37 +36,55 @@ public class registerServlet extends HttpServlet {
                     // Establecer la conexión con la base de datos
                     con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
             
-                    // Preparar la consulta SQL para insertar un nuevo registro en la tabla login
-                    pst = con.prepareStatement("INSERT INTO login (accno, pinno) VALUES (?, ?)");
+                    // Verificar si el accno ya existe en la tabla login
+                    pst = con.prepareStatement("SELECT COUNT(*) FROM login WHERE accno = ?");
                     pst.setString(1, accno);
-                    pst.setString(2, pinno);
+                    ResultSet rs = pst.executeQuery();
+                    rs.next();
+                    int count = rs.getInt(1);
             
-                    // Ejecutar la inserción
-                    int rowsAffected = pst.executeUpdate();
-                    if (rowsAffected > 0) {
-                        // Si la inserción fue exitosa, insertar un saldo inicial de 0 en account_balance
-                        pst = con.prepareStatement("INSERT INTO account_balance (accnum, balance) VALUES (?, ?)");
-                        pst.setString(1, accno);
-                        pst.setDouble(2, 0.00); // Saldo inicial de 0
-                        pst.executeUpdate();
-            
-                        // Mensaje de éxito
+                    if (count > 0) {
+                        // Si el accno ya existe, mostrar mensaje de error
                         out = response.getWriter();
                         response.setContentType("text/html");
                         out.println("<html>");
                         out.println("<body bgcolor='#ECF0F1'>");
-                        out.println("Registro realizado exitosamente.");
+                        out.println("Error: El número de cuenta que ingresaste ya está dentro del sistema, ingresa un número de cuenta diferente");
                         out.println("</body>");
                         out.println("</html>");
                     } else {
-                        // Si no se afectaron filas
-                        out = response.getWriter();
-                        response.setContentType("text/html");
-                        out.println("<html>");
-                        out.println("<body bgcolor='#ECF0F1'>");
-                        out.println("Error al registrarse.");
-                        out.println("</body>");
-                        out.println("</html>");
+                        // Si no existe, proceder con la inserción
+                        pst = con.prepareStatement("INSERT INTO login (accno, pinno) VALUES (?, ?)");
+                        pst.setString(1, accno);
+                        pst.setString(2, pinno);
+            
+                        // Ejecutar la inserción
+                        int rowsAffected = pst.executeUpdate();
+                        if (rowsAffected > 0) {
+                            // Si la inserción fue exitosa, insertar un saldo inicial de 0 en account_balance
+                            pst = con.prepareStatement("INSERT INTO account_balance (accnum, balance) VALUES (?, ?)");
+                            pst.setString(1, accno);
+                            pst.setDouble(2, 0.00); // Saldo inicial de 0
+                            pst.executeUpdate();
+            
+                            // Mensaje de éxito
+                            out = response.getWriter();
+                            response.setContentType("text/html");
+                            out.println("<html>");
+                            out.println("<body bgcolor='#ECF0F1'>");
+                            out.println("Registro realizado exitosamente.");
+                            out.println("</body>");
+                            out.println("</html>");
+                        } else {
+                            // Si no se afectaron filas
+                            out = response.getWriter();
+                            response.setContentType("text/html");
+                            out.println("<html>");
+                            out.println("<body bgcolor='#ECF0F1'>");
+                            out.println("Error al registrarse.");
+                            out.println("</body>");
+                            out.println("</html>");
+                        }
                     }
             
                     // Cerrar la conexión
