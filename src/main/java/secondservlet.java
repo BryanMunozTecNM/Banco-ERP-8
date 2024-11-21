@@ -36,7 +36,7 @@ public class secondservlet extends HttpServlet {
         response.setContentType("text/html");
     
         ServletContext context = getServletContext();
-        Object obj = context.getAttribute("accno");
+        Object obj = context.getAttribute("accid");
         String value = obj.toString();
         
         double totalBalance = 0.0;
@@ -44,7 +44,7 @@ public class secondservlet extends HttpServlet {
     
         try {
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
-            PreparedStatement pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accnum = ?");
+            PreparedStatement pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accid = ?");
             pst.setString(1, value);
             ResultSet rs = pst.executeQuery();
     

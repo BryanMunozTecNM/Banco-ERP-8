@@ -38,20 +38,20 @@ public class servlet1 extends HttpServlet {
             Class.forName("com.mysql.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
             ServletContext context = getServletContext();
-            context.setAttribute("accno", "");
-            String accno = request.getParameter("accno");
-            String pinno = request.getParameter("pinno");  
+            context.setAttribute("accid", "");
+            String accid = request.getParameter("accid");
+            String accpass = request.getParameter("accpass");  
 
-        // Consulta para verificar el accno y pinno
-        pst = con.prepareStatement("SELECT * FROM login WHERE accno = ? AND pinno = ?");
-        pst.setString(1, accno);
-        pst.setString(2, pinno); // La comparación será sensible a mayúsculas y minúsculas
+        // Consulta para verificar el accid y accpass
+        pst = con.prepareStatement("SELECT * FROM login WHERE accid = ? AND accpass = ?");
+        pst.setString(1, accid);
+        pst.setString(2, accpass); // La comparación será sensible a mayúsculas y minúsculas
         rs = pst.executeQuery();
         boolean row = rs.next();
         
         if (row) {
             result = rs.getString(2);
-            context.setAttribute("accno", result);
+            context.setAttribute("accid", result);
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/secondservlet");
             if (dispatcher == null) {   
             }
@@ -62,7 +62,7 @@ public class servlet1 extends HttpServlet {
             response.setContentType("text/html");
             out.println("<html>");
             out.println("<body bgcolor='#ECF0F1'>");
-            out.println("Número de cuenta y/o PIN no válido(s)");
+            out.println("Número de cuenta y/o clave no válido(s)");
             out.println("</body>");
             out.println("</html>");
             out.close();

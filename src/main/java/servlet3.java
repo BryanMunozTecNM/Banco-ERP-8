@@ -40,8 +40,8 @@ public class servlet3 extends HttpServlet {
                     Class.forName("com.mysql.jdbc.Driver");
                     con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
                     ServletContext context = getServletContext();
-                    Object obj = context.getAttribute("accno");
-                    String accno = obj.toString();
+                    Object obj = context.getAttribute("accid");
+                    String accid = obj.toString();
             
                     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
                     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -55,9 +55,9 @@ public class servlet3 extends HttpServlet {
             
                     // Manejar depósito
                     if (transactionType.equals("deposit")) {
-                        // Verificar si ya existe un registro para el accno en account_balance
-                        pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accnum = ?");
-                        pst.setString(1, accno);
+                        // Verificar si ya existe un registro para el accid en account_balance
+                        pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accid = ?");
+                        pst.setString(1, accid);
                         ResultSet rs = pst.executeQuery();
             
                         if (rs.next()) {
@@ -65,23 +65,23 @@ public class servlet3 extends HttpServlet {
                             double existingBalance = rs.getDouble("balance");
                             double newBalance = existingBalance + amount;
             
-                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accnum = ?");
+                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accid = ?");
                             pst.setDouble(1, newBalance);
-                            pst.setString(2, accno);
+                            pst.setString(2, accid);
                             pst.executeUpdate();
                         } else {
                             // Si no existe, insertar un nuevo registro con el saldo inicial
-                            pst = con.prepareStatement("INSERT INTO account_balance (accnum, balance) VALUES (?, ?)");
-                            pst.setString(1, accno);
+                            pst = con.prepareStatement("INSERT INTO account_balance (accid, balance) VALUES (?, ?)");
+                            pst.setString(1, accid);
                             pst.setDouble(2, amount);
                             pst.executeUpdate();
                         }
                     } 
                     // Manejar cargo
                     else if (transactionType.equals("charge")) {
-                        // Verificar si ya existe un registro para el accno en account_balance
-                        pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accnum = ?");
-                        pst.setString(1, accno);
+                        // Verificar si ya existe un registro para el accid en account_balance
+                        pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accid = ?");
+                        pst.setString(1, accid);
                         ResultSet rs = pst.executeQuery();
             
                         if (rs.next()) {
@@ -89,9 +89,9 @@ public class servlet3 extends HttpServlet {
                             double existingBalance = rs.getDouble("balance");
                             double newBalance = existingBalance - amount;
             
-                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accnum = ?");
+                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accid = ?");
                             pst.setDouble(1, newBalance);
-                            pst.setString(2, accno);
+                            pst.setString(2, accid);
                             pst.executeUpdate();
                         } else {
                             // Si no existe, no se puede hacer un cargo
@@ -101,8 +101,8 @@ public class servlet3 extends HttpServlet {
                     }
             
                     // Registrar la transacción en la tabla de historial
-                    pst = con.prepareStatement("INSERT INTO transactions (accnum, date, hour, amount, type) VALUES (?, ?, ?, ?, ?)");
-                    pst.setString(1, accno);
+                    pst = con.prepareStatement("INSERT INTO transactions (accid, date, hour, amount, type) VALUES (?, ?, ?, ?, ?)");
+                    pst.setString(1, accid);
                     pst.setString(2, date);
                     pst.setString(3, hour); // Insertar la hora en la columna 'hour'
                     pst.setDouble(4, amount);

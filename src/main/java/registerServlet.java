@@ -30,21 +30,21 @@ public class registerServlet extends HttpServlet {
 
                 try {
                     // Obtener los parámetros necesarios para la inserción
-                    String accno = request.getParameter("accno");
-                    String pinno = request.getParameter("pinno");
+                    String accid = request.getParameter("accid");
+                    String accpass = request.getParameter("accpass");
             
                     // Establecer la conexión con la base de datos
                     con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
             
-                    // Verificar si el accno ya existe en la tabla login
-                    pst = con.prepareStatement("SELECT COUNT(*) FROM login WHERE accno = ?");
-                    pst.setString(1, accno);
+                    // Verificar si el accid ya existe en la tabla login
+                    pst = con.prepareStatement("SELECT COUNT(*) FROM login WHERE accid = ?");
+                    pst.setString(1, accid);
                     ResultSet rs = pst.executeQuery();
                     rs.next();
                     int count = rs.getInt(1);
             
                     if (count > 0) {
-                        // Si el accno ya existe, mostrar mensaje de error
+                        // Si el accid ya existe, mostrar mensaje de error
                         out = response.getWriter();
                         response.setContentType("text/html");
                         out.println("<html>");
@@ -54,16 +54,16 @@ public class registerServlet extends HttpServlet {
                         out.println("</html>");
                     } else {
                         // Si no existe, proceder con la inserción
-                        pst = con.prepareStatement("INSERT INTO login (accno, pinno) VALUES (?, ?)");
-                        pst.setString(1, accno);
-                        pst.setString(2, pinno);
+                        pst = con.prepareStatement("INSERT INTO login (accid, accpass) VALUES (?, ?)");
+                        pst.setString(1, accid);
+                        pst.setString(2, accpass);
             
                         // Ejecutar la inserción
                         int rowsAffected = pst.executeUpdate();
                         if (rowsAffected > 0) {
                             // Si la inserción fue exitosa, insertar un saldo inicial de 0 en account_balance
-                            pst = con.prepareStatement("INSERT INTO account_balance (accnum, balance) VALUES (?, ?)");
-                            pst.setString(1, accno);
+                            pst = con.prepareStatement("INSERT INTO account_balance (accid, balance) VALUES (?, ?)");
+                            pst.setString(1, accid);
                             pst.setDouble(2, 0.00); // Saldo inicial de 0
                             pst.executeUpdate();
             
