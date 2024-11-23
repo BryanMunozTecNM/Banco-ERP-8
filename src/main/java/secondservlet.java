@@ -5,9 +5,11 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -16,11 +18,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-
 @WebServlet("/secondservlet")
 public class secondservlet extends HttpServlet {
+
+    Connection con; // Variable de instancia
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,7 +43,7 @@ public class secondservlet extends HttpServlet {
         double totalBalance = 0.0;
     
         try {
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", ""); // Usa la variable de instancia
             PreparedStatement pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accid = ?");
             pst.setString(1, value);
             ResultSet rs = pst.executeQuery();
@@ -76,40 +77,80 @@ public class secondservlet extends HttpServlet {
         out.println("</tr>");
         out.println("</table>");
     
-// Mostrar el mensaje de transacción si existe
-String transactionMessage = (String) request.getSession().getAttribute("transactionMessage");
-if (transactionMessage != null) {
-    // Cambia esto para imprimir el mensaje de éxito en verde
-    if (transactionMessage.contains("La transaccion fue realizada con exito")) {
-        out.println("<p style='color: green;'>" + transactionMessage + "</p>");
-    } else {
-        out.println("<p>" + transactionMessage + "</p>");
-    }
-    request.getSession().removeAttribute("transactionMessage"); // Eliminar el mensaje de la sesión
-}
+        // Mostrar el mensaje de transacción si existe
+        String transactionMessage = (String) request.getSession().getAttribute("transactionMessage");
+        if (transactionMessage != null) {
+            // Cambia esto para imprimir el mensaje de éxito en verde
+            if (transactionMessage.contains("La transaccion fue realizada con exito")) {
+                out.println("<p style='color: green;'>" + transactionMessage + "</p>");
+            } else {
+                out.println("<p>" + transactionMessage + "</p>");
+            }
+            request.getSession().removeAttribute("transactionMessage"); // Eliminar el mensaje de la sesión
+        }
 
-out.println("<script>");
-out.println("function validateForm() {");
-out.println("    var amount = document.forms[0]['amount'].value;");
-out.println("    if (amount < 0) {");
-out.println("        alert('Por favor, ingrese un monto positivo.');");
-out.println("        return false;");
-out.println("    }");
-out.println("    return true;");
-out.println("}");
-out.println("</script>");
+        out.println("<script>");
+        out.println("function validateForm() {");
+        out.println("    var mount = document.forms[0]['mount'].value;");
+        out.println("    if (mount < 0) {");
+        out.println("        alert('Por favor, ingrese un monto positivo.');");
+        out.println("        return false;");
+        out.println("    }");
+        out.println("    return true;");
+        out.println("}");
+        out.println("</script>");
 
         // Agregar opción para realizar un depósito o un cargo
-        out.println("<input type='number' name='amount' placeholder='Monto' required min='0' step='0.01'>");
+        out.println("<input type='number' name='mount' placeholder='Monto' required min='0' step='0.01'>");
         out.println("<select name='transactionType'>");
         out.println("<option value='deposit'>Depósito</option>");
         out.println("<option value='charge'>Cargo</option>");
-
         out.println("</select>");
         out.println("<input type='submit' value='Realizar Transacción'>");
         out.println("</form>");
-        out.println("</center>");
-        out.println("</body>");
-        out.println("</html>");
+
+        // Mostrar las transacciones del usuario
+        out.println("<h3>Historial de Transacciones</h3>");
+        out.println("<table border='1'>");
+        out.println("<tr><th>ID de Cuenta</th><th>Fecha</th><th>Hora</th><th>Monto</th><th>Tipo </th></tr>");
+        
+        try {
+            PreparedStatement transactionPst = con.prepareStatement("SELECT * FROM transactions WHERE accid = ?");
+            transactionPst.setString(1, value);
+            ResultSet transactionRs = transactionPst.executeQuery();
+            
+            while (transactionRs.next()) {
+                out.println("<tr>");
+                out.println("<td>" + transactionRs.getString("accid") + "</td>");
+                out.println("<td>" + transactionRs.getDate("date") + "</td>");
+                out.println("<td>" + transactionRs.getTime("hour") + "</td>"); // Hora de la transacción
+                out.println("<td>" + transactionRs.getDouble("mount") + "</td>"); // Monto de la transacción
+                
+                // Obtener el tipo de transacción y traducirlo
+                String transactionType = transactionRs.getString("type");
+                String translatedType;
+        
+                if ("register".equals(transactionType)) {
+                    translatedType = "registro";
+                } else if ("deposit".equals(transactionType)) {
+                    translatedType = "depósito";
+                } else if ("charge".equals(transactionType)) {
+                    translatedType = "cargo";
+                } else {
+                    translatedType = transactionType; // En caso de que sea un tipo no esperado
+                }
+                
+                out.println("<td>" + translatedType + "</td>"); // Mostrar el tipo traducido
+                out.println("</tr>");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            out.println("<tr><td colspan='5'>Error al cargar las transacciones: " + ex.getMessage() + "</td></tr>");
+        } finally {
+            out.println("</table>");
+            out.println("</center>");
+            out.println("</body>");
+            out.println("</html>");
+        }
     }
 }

@@ -48,8 +48,7 @@ public class servlet3 extends HttpServlet {
                     LocalDateTime now = LocalDateTime.now();
                     String date = dateFormatter.format(now);
                     String hour = timeFormatter.format(now); // Cambiamos el nombre a 'hour'
-                    String amountStr = request.getParameter("amount");
-                    double amount = Double.parseDouble(request.getParameter("amount"));
+                    double mount = Double.parseDouble(request.getParameter("mount"));
                     String transactionType = request.getParameter("transactionType"); //deposit or charge
             
             
@@ -63,7 +62,7 @@ public class servlet3 extends HttpServlet {
                         if (rs.next()) {
                             // Si existe, actualizar el saldo
                             double existingBalance = rs.getDouble("balance");
-                            double newBalance = existingBalance + amount;
+                            double newBalance = existingBalance + mount;
             
                             pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accid = ?");
                             pst.setDouble(1, newBalance);
@@ -73,7 +72,7 @@ public class servlet3 extends HttpServlet {
                             // Si no existe, insertar un nuevo registro con el saldo inicial
                             pst = con.prepareStatement("INSERT INTO account_balance (accid, balance) VALUES (?, ?)");
                             pst.setString(1, accid);
-                            pst.setDouble(2, amount);
+                            pst.setDouble(2, mount);
                             pst.executeUpdate();
                         }
                     } 
@@ -87,9 +86,9 @@ public class servlet3 extends HttpServlet {
                         if (rs.next()) {
                             // Si existe, verificar si hay saldo suficiente
                             double existingBalance = rs.getDouble("balance");
-                            if (existingBalance >= amount) {
+                            if (existingBalance >= mount) {
                                 // Si hay saldo suficiente, actualizar el saldo
-                                double newBalance = existingBalance - amount;
+                                double newBalance = existingBalance - mount;
                     
                                 pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accid = ?");
                                 pst.setDouble(1, newBalance);
@@ -110,11 +109,11 @@ public class servlet3 extends HttpServlet {
                     }
             
                     // Registrar la transacción en la tabla de historial
-                    pst = con.prepareStatement("INSERT INTO transactions (accid, date, hour, amount, type) VALUES (?, ?, ?, ?, ?)");
+                    pst = con.prepareStatement("INSERT INTO transactions (accid, date, hour, mount, type) VALUES (?, ?, ?, ?, ?)");
                     pst.setString(1, accid);
                     pst.setString(2, date);
                     pst.setString(3, hour); // Insertar la hora en la columna 'hour'
-                    pst.setDouble(4, amount);
+                    pst.setDouble(4, mount);
                     pst.setString(5, transactionType);
                     pst.executeUpdate();
             

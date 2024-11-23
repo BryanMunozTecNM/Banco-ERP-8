@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-11-2024 a las 01:08:27
+-- Tiempo de generación: 23-11-2024 a las 06:42:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,7 +39,7 @@ CREATE TABLE `account_balance` (
 --
 
 INSERT INTO `account_balance` (`accid`, `balance`) VALUES
-('Prov1', 56.00);
+('Cliente1', 100.00);
 
 -- --------------------------------------------------------
 
@@ -58,7 +58,7 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `accid`, `accpass`) VALUES
-(27, 'Prov1', '1');
+(34, 'Cliente1', '1');
 
 -- --------------------------------------------------------
 
@@ -70,8 +70,8 @@ CREATE TABLE `transactions` (
   `id` int(11) NOT NULL,
   `accid` varchar(255) NOT NULL,
   `date` date NOT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `type` enum('deposit','charge') NOT NULL,
+  `mount` decimal(10,2) NOT NULL,
+  `type` enum('register','deposit','charge') NOT NULL,
   `hour` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -79,9 +79,10 @@ CREATE TABLE `transactions` (
 -- Volcado de datos para la tabla `transactions`
 --
 
-INSERT INTO `transactions` (`id`, `accid`, `date`, `amount`, `type`, `hour`) VALUES
-(59, 'Prov1', '2024-11-22', 111.00, 'deposit', '18:06:25'),
-(60, 'Prov1', '2024-11-22', 55.00, 'charge', '18:06:32');
+INSERT INTO `transactions` (`id`, `accid`, `date`, `mount`, `type`, `hour`) VALUES
+(71, 'Cliente1', '2024-11-22', 0.00, 'register', '23:41:22'),
+(72, 'Cliente1', '2024-11-22', 111.00, 'deposit', '23:41:39'),
+(73, 'Cliente1', '2024-11-22', 11.00, 'charge', '23:41:46');
 
 --
 -- Índices para tablas volcadas
@@ -113,13 +114,13 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT de la tabla `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de la tabla `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
