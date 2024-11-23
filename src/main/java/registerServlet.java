@@ -49,7 +49,7 @@ public class registerServlet extends HttpServlet {
                         response.setContentType("text/html");
                         out.println("<html>");
                         out.println("<body bgcolor='#ECF0F1'>");
-                        out.println("Error: El número de cuenta que ingresaste ya está dentro del sistema, ingresa un número de cuenta diferente");
+                        out.println("Error: El ID de cuenta que ingresaste ya está dentro del sistema, ingresa un ID de cuenta diferente");
                         out.println("</body>");
                         out.println("</html>");
                     } else {

@@ -40,7 +40,6 @@ public class secondservlet extends HttpServlet {
         String value = obj.toString();
         
         double totalBalance = 0.0;
-        String transactionMessage = ""; // Mensaje de transacción
     
         try {
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
@@ -58,36 +57,50 @@ public class secondservlet extends HttpServlet {
             ex.printStackTrace();
         }
     
-        // Mostrar el mensaje de transacción si existe
-        if (request.getParameter("transactionMessage") != null) {
-            transactionMessage = request.getParameter("transactionMessage");
-        }
-    
         out.println("<html>");
         out.println("<body bgcolor='#ECF0F1'>");
         out.println("<center>");
         out.println("<h2>Banco - ERP</h2>");
-        out.println("<form method='post' action='servlet3'>");
+        out.println("<form method='post' action='servlet3' onsubmit='return validateForm()'>");
         out.println("<b>Transacciones Bancarias</b>");
         out.println("<table>");
         out.println("<tr>");
-        out.println("<td>Número de Cuenta: " + value + "</td>");
+        out.println("<td>ID de Cuenta: " + value + "</td>");
         out.println("</tr>");
         out.println("<tr>");
         out.println("<td>Saldo Total: " + totalBalance + "</td>");
         out.println("</tr>");
         out.println("</table>");
     
-        // Mostrar el mensaje de transacción
-        if (!transactionMessage.isEmpty()) {
-            out.println("<p style='color: green;'>" + transactionMessage + "</p>");
-        }
-    
+// Mostrar el mensaje de transacción si existe
+String transactionMessage = (String) request.getSession().getAttribute("transactionMessage");
+if (transactionMessage != null) {
+    // Cambia esto para imprimir el mensaje de éxito en verde
+    if (transactionMessage.contains("La transaccion fue realizada con exito")) {
+        out.println("<p style='color: green;'>" + transactionMessage + "</p>");
+    } else {
+        out.println("<p>" + transactionMessage + "</p>");
+    }
+    request.getSession().removeAttribute("transactionMessage"); // Eliminar el mensaje de la sesión
+}
+
+out.println("<script>");
+out.println("function validateForm() {");
+out.println("    var amount = document.forms[0]['amount'].value;");
+out.println("    if (amount < 0) {");
+out.println("        alert('Por favor, ingrese un monto positivo.');");
+out.println("        return false;");
+out.println("    }");
+out.println("    return true;");
+out.println("}");
+out.println("</script>");
+
         // Agregar opción para realizar un depósito o un cargo
-        out.println("<input type='text' name='amount' placeholder='Monto' required>");
+        out.println("<input type='number' name='amount' placeholder='Monto' required min='0' step='0.01'>");
         out.println("<select name='transactionType'>");
         out.println("<option value='deposit'>Depósito</option>");
         out.println("<option value='charge'>Cargo</option>");
+
         out.println("</select>");
         out.println("<input type='submit' value='Realizar Transacción'>");
         out.println("</form>");

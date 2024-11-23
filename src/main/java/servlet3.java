@@ -83,16 +83,25 @@ public class servlet3 extends HttpServlet {
                         pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accid = ?");
                         pst.setString(1, accid);
                         ResultSet rs = pst.executeQuery();
-            
+                    
                         if (rs.next()) {
-                            // Si existe, actualizar el saldo
+                            // Si existe, verificar si hay saldo suficiente
                             double existingBalance = rs.getDouble("balance");
-                            double newBalance = existingBalance - amount;
-            
-                            pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accid = ?");
-                            pst.setDouble(1, newBalance);
-                            pst.setString(2, accid);
-                            pst.executeUpdate();
+                            if (existingBalance >= amount) {
+                                // Si hay saldo suficiente, actualizar el saldo
+                                double newBalance = existingBalance - amount;
+                    
+                                pst = con.prepareStatement("UPDATE account_balance SET balance = ? WHERE accid = ?");
+                                pst.setDouble(1, newBalance);
+                                pst.setString(2, accid);
+                                pst.executeUpdate();
+                            } else {
+                                // Si no hay saldo suficiente, redirigir con mensaje de error
+                                String errorMessage = "<span style='color: red;'>Saldo Insuficiente para realizar el Cargo</span>";
+                                request.getSession().setAttribute("transactionMessage", errorMessage); // Almacenar el mensaje en la sesión
+                                response.sendRedirect("secondservlet");
+                                return;
+                            }
                         } else {
                             // Si no existe, no se puede hacer un cargo
                             out.println("No se puede realizar el cargo, la cuenta no existe.");
@@ -109,8 +118,8 @@ public class servlet3 extends HttpServlet {
                     pst.setString(5, transactionType);
                     pst.executeUpdate();
             
-        String transactionMessage = "La transaccion fue realizada con exito";
-        response.sendRedirect("secondservlet?transactionMessage=" + URLEncoder.encode(transactionMessage, "UTF-8"));
+                    request.getSession().setAttribute("transactionMessage", "La transaccion fue realizada con exito");
+                    response.sendRedirect("secondservlet");
     } catch (Exception ex) {
         ex.printStackTrace();
     }

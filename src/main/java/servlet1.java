@@ -62,7 +62,7 @@ public class servlet1 extends HttpServlet {
             response.setContentType("text/html");
             out.println("<html>");
             out.println("<body bgcolor='#ECF0F1'>");
-            out.println("Número de cuenta y/o clave no válido(s)");
+            out.println("ID de cuenta y/o clave no válido(s)");
             out.println("</body>");
             out.println("</html>");
             out.close();
