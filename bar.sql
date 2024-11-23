@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-11-2024 a las 18:40:56
+-- Tiempo de generación: 23-11-2024 a las 01:08:27
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,8 +39,7 @@ CREATE TABLE `account_balance` (
 --
 
 INSERT INTO `account_balance` (`accid`, `balance`) VALUES
-('Prov1', 0.00),
-('Prueba1', 0.00);
+('Prov1', 56.00);
 
 -- --------------------------------------------------------
 
@@ -59,8 +58,7 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `accid`, `accpass`) VALUES
-(23, 'Prueba1', '1'),
-(24, 'Prov1', '1');
+(27, 'Prov1', '1');
 
 -- --------------------------------------------------------
 
@@ -76,6 +74,14 @@ CREATE TABLE `transactions` (
   `type` enum('deposit','charge') NOT NULL,
   `hour` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `accid`, `date`, `amount`, `type`, `hour`) VALUES
+(59, 'Prov1', '2024-11-22', 111.00, 'deposit', '18:06:25'),
+(60, 'Prov1', '2024-11-22', 55.00, 'charge', '18:06:32');
 
 --
 -- Índices para tablas volcadas
@@ -107,13 +113,13 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT de la tabla `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
