@@ -59,8 +59,8 @@ public class servlet1 extends HttpServlet {
                 con.close();
             } else {
                 // En lugar de imprimir el mensaje en una nueva ventana, redirige a index.xhtml
-                String errorMessage = "ID de cuenta y/o clave incorrecto(s)";
-                response.sendRedirect("faces/index.xhtml?errorMessage=" + URLEncoder.encode(errorMessage, "UTF-8"));
+                String errorMessageL = "ID de cuenta y/o clave incorrecto(s)";
+                response.sendRedirect("faces/index.xhtml?errorMessageL=" + URLEncoder.encode(errorMessageL, "UTF-8"));
             }
 
         } catch (ClassNotFoundException ex) {

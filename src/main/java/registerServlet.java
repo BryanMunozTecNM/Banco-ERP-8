@@ -112,8 +112,8 @@ public class registerServlet extends HttpServlet {
                     }
                 } else {
                     // Si no se afectaron filas
-                    String errorMessage = "Error al registrarse.";
-                    response.sendRedirect("faces/index.xhtml?errorMessage=" + URLEncoder.encode(errorMessage, "UTF-8"));
+                    String errorMessageR = "Error al registrarse.";
+                    response.sendRedirect("faces/index.xhtml?errorMessageR=" + URLEncoder.encode(errorMessageR, "UTF-8"));
                 }
             }
 
