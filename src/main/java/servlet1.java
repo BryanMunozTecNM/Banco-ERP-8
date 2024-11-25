@@ -5,6 +5,7 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -58,14 +59,9 @@ public class servlet1 extends HttpServlet {
             dispatcher.forward(request, response);
             con.close();       
         } else {
-            out = response.getWriter();
-            response.setContentType("text/html");
-            out.println("<html>");
-            out.println("<body bgcolor='#ECF0F1'>");
-            out.println("ID de cuenta y/o clave no válido(s)");
-            out.println("</body>");
-            out.println("</html>");
-            out.close();
+    // En lugar de imprimir el mensaje en una nueva ventana, redirige a index.xhtml
+    String errorMessage = "ID de cuenta y/o clave incorrecto(s)";
+    response.sendRedirect("faces/index.xhtml?errorMessage=" + URLEncoder.encode(errorMessage, "UTF-8"));
         }
         
     } catch (ClassNotFoundException ex) {
