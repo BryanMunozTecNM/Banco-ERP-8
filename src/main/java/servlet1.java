@@ -28,49 +28,47 @@ public class servlet1 extends HttpServlet {
     Connection con;
     PreparedStatement pst;
     ResultSet rs;
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        try 
-        {
+
+        try {
             String result;
             Class.forName("com.mysql.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
             ServletContext context = getServletContext();
             context.setAttribute("accid", "");
             String accid = request.getParameter("accid");
-            String accpass = request.getParameter("accpass");  
+            String accpass = request.getParameter("accpass");
 
-        // Consulta para verificar el accid y accpass
-        pst = con.prepareStatement("SELECT * FROM login WHERE accid = ? AND accpass = ?");
-        pst.setString(1, accid);
-        pst.setString(2, accpass); // La comparación será sensible a mayúsculas y minúsculas
-        rs = pst.executeQuery();
-        boolean row = rs.next();
-        
-        if (row) {
-            result = rs.getString(2);
-            context.setAttribute("accid", result);
-            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/secondservlet");
-            if (dispatcher == null) {   
+            // Consulta para verificar el accid y accpass
+            pst = con.prepareStatement("SELECT * FROM login WHERE accid = ? AND accpass = ?");
+            pst.setString(1, accid);
+            pst.setString(2, accpass); // La comparación será sensible a mayúsculas y minúsculas
+            rs = pst.executeQuery();
+            boolean row = rs.next();
+
+            if (row) {
+                result = rs.getString(2);
+                context.setAttribute("accid", result);
+                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/secondservlet");
+                if (dispatcher == null) {
+                }
+                dispatcher.forward(request, response);
+                con.close();
+            } else {
+                // En lugar de imprimir el mensaje en una nueva ventana, redirige a index.xhtml
+                String errorMessage = "ID de cuenta y/o clave incorrecto(s)";
+                response.sendRedirect("faces/index.xhtml?errorMessage=" + URLEncoder.encode(errorMessage, "UTF-8"));
             }
-            dispatcher.forward(request, response);
-            con.close();       
-        } else {
-    // En lugar de imprimir el mensaje en una nueva ventana, redirige a index.xhtml
-    String errorMessage = "ID de cuenta y/o clave incorrecto(s)";
-    response.sendRedirect("faces/index.xhtml?errorMessage=" + URLEncoder.encode(errorMessage, "UTF-8"));
+
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-        
-    } catch (ClassNotFoundException ex) {
-       ex.printStackTrace();
-    } catch (SQLException ex) {
-         ex.printStackTrace();
-    }
 
     }
-
 
 }

@@ -29,25 +29,25 @@ public class secondservlet extends HttpServlet {
         // Llama a doPost para manejar la lógica de mostrar la pantalla de transacciones
         doPost(request, response);
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         PrintWriter out = response.getWriter();
         response.setContentType("text/html");
-    
+
         ServletContext context = getServletContext();
         Object obj = context.getAttribute("accid");
         String value = obj.toString();
-        
+
         double totalBalance = 0.0;
-    
+
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", ""); // Usa la variable de instancia
             PreparedStatement pst = con.prepareStatement("SELECT balance FROM account_balance WHERE accid = ?");
             pst.setString(1, value);
             ResultSet rs = pst.executeQuery();
-    
+
             if (rs.next()) {
                 totalBalance = rs.getDouble("balance");
             } else {
@@ -57,7 +57,7 @@ public class secondservlet extends HttpServlet {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-    
+
         out.println("<form action='faces/index.xhtml' method='get'>");
         out.println("<input type='submit' value='Volver a Inicio'>");
         out.println("</form>");
@@ -76,7 +76,7 @@ public class secondservlet extends HttpServlet {
         out.println("<td>Saldo Total: " + totalBalance + "</td>");
         out.println("</tr>");
         out.println("</table>");
-    
+
         // Mostrar el mensaje de transacción si existe
         String transactionMessage = (String) request.getSession().getAttribute("transactionMessage");
         if (transactionMessage != null) {
@@ -113,23 +113,23 @@ public class secondservlet extends HttpServlet {
         out.println("<h3>Historial de Transacciones</h3>");
         out.println("<table border='1'>");
         out.println("<tr><th>ID de Cuenta</th><th>Fecha</th><th>Hora</th><th>Monto</th><th>Tipo </th></tr>");
-        
+
         try {
             PreparedStatement transactionPst = con.prepareStatement("SELECT * FROM transactions WHERE accid = ?");
             transactionPst.setString(1, value);
             ResultSet transactionRs = transactionPst.executeQuery();
-            
+
             while (transactionRs.next()) {
                 out.println("<tr>");
                 out.println("<td>" + transactionRs.getString("accid") + "</td>");
                 out.println("<td>" + transactionRs.getDate("date") + "</td>");
                 out.println("<td>" + transactionRs.getTime("hour") + "</td>"); // Hora de la transacción
                 out.println("<td>" + transactionRs.getDouble("mount") + "</td>"); // Monto de la transacción
-                
+
                 // Obtener el tipo de transacción y traducirlo
                 String transactionType = transactionRs.getString("type");
                 String translatedType;
-        
+
                 if ("register".equals(transactionType)) {
                     translatedType = "registro";
                 } else if ("deposit".equals(transactionType)) {
@@ -139,7 +139,7 @@ public class secondservlet extends HttpServlet {
                 } else {
                     translatedType = transactionType; // En caso de que sea un tipo no esperado
                 }
-                
+
                 out.println("<td>" + translatedType + "</td>"); // Mostrar el tipo traducido
                 out.println("</tr>");
             }
