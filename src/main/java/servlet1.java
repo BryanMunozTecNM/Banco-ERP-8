@@ -35,7 +35,7 @@ public class servlet1 extends HttpServlet {
 
         try {
             String result;
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
             ServletContext context = getServletContext();
             context.setAttribute("accid", "");

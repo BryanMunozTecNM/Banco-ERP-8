@@ -37,7 +37,7 @@ public class servlet3 extends HttpServlet {
             PrintWriter out = response.getWriter();
             response.setContentType("text/html");
 
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost/bar", "root", "");
             ServletContext context = getServletContext();
             Object obj = context.getAttribute("accid");
