@@ -1,6 +1,7 @@
 com\banco\erp\ocho\JakartaRestConfiguration.class
 servlet1.class
+com\banco\erp\ocho\resources\EndpointsJSON$Account.class
+com\banco\erp\ocho\resources\EndpointsJSON.class
 servlet3.class
 secondservlet.class
-com\banco\erp\ocho\resources\JakartaEE91Resource.class
 registerServlet.class
